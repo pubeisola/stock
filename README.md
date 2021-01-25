@@ -4,31 +4,59 @@ stock 面试代码实现
 
 一、方案设计   
 1)运用 RocketMQ 消息队列保证提交的股票交易的顺序提交
+
 2)代码运用spring boot 实现  运用rocketmq-spring-boot-starter 
+
 生产端同步生产，运用 RocketMQ 的生产端的select特性保证RocketMQ同一个交易员的交易的顺序性，不同交易员的交易不需要保证交易的顺序性
+
 3)运用rocketmq-spring-boot-starter 自带的MessageListenerOrderly 同一个队列的单线程消费保证同一个交易员的交易的顺序性
+
    根据交易量设置RocketMQ 集群大小和启动时主题的默认队列数目
+   
    消费端采用一队列一线程消费实现某交易员的某只股票的顺序交易进入mysql 数据库
+   
 4）交易流水存储入mysql 数据库(海量数据可以使用TiDB 代替) 
+
 5）最终的每个交易员的某个股票交易头寸通过股票的最终交易表存储
+
 6）界面显示的股票头寸直接查询 本部分第五步设计的最终交易表直接查询
+
 7）用到的主要中间件RocketMQ    业务和消息消费通过spring boot 实现
+
 8）RocketMq  在消费端的去重通过生产交易记录时生成uuid 存储入mysql 
+
        消费端在查询到重复记录时丢弃本记录，然后插入可以插入的记录
+       
        同时更新最终交易表
+       
+       
 9） 本案例相关的mysql 表实现
+
         数据库是 127.0.0.1 的rpa
+        
         DROP TABLE IF EXISTS `stock_position`;
+        
 CREATE TABLE `stock_position` (
+
   `id` bigint(12) NOT NULL AUTO_INCREMENT COMMENT '主建',
+  
   `security_code` varchar(248) DEFAULT '',
+  
   `quantity` bigint(20) DEFAULT '0' COMMENT ' 交易的股票数',
+  
   `update_time` int(11) DEFAULT '0' COMMENT ' 记录更新时间',
+  
   `trade_id` int(11) DEFAULT '0' COMMENT '交易员id',
+  
+  
   `version` int(11) DEFAULT '0' COMMENT '交易最后版本号',
+  
   PRIMARY KEY (`id`),
+  
   UNIQUE KEY `index` (`trade_id`,`security_code`) USING BTREE
+  
 ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+
 
 
 DROP TABLE IF EXISTS `stock_transaction_log`;
