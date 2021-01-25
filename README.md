@@ -60,58 +60,73 @@ CREATE TABLE `stock_position` (
 
 
 DROP TABLE IF EXISTS `stock_transaction_log`;
+
 CREATE TABLE `stock_transaction_log` (
+
   `transaction_id` int(12) NOT NULL AUTO_INCREMENT COMMENT '主建',
+  
   `trade_ser_id` char(32) DEFAULT '' COMMENT ' 唯一交易id 用于rocketMQ 重复记录去重',
+  
   `trade_id` int(12) DEFAULT '0' COMMENT '交易员的id',
+  
   `version` int(12) DEFAULT '1' COMMENT '同一个交易员同一只股票的交易版本号',
+  
   `security_code` varchar(248) DEFAULT '' COMMENT '股票代码',
+  
   `quantity` int(12) DEFAULT '0' COMMENT '交易股数',
+  
   `action` char(6) DEFAULT '' COMMENT '交易动作 // insert update cancel',
+  
   `buy_or_sell` char(4) DEFAULT '0' COMMENT '交易的类型  // buy: 买 Sell 卖   1 :   买  -1 卖',
+  
   `create_time` int(12) DEFAULT '0' COMMENT '创建记录时间',
+  
   PRIMARY KEY (`transaction_id`),
+  
   KEY `index_trade_ser_id` (`trade_ser_id`) USING BTREE
+  
 ) ENGINE=InnoDB AUTO_INCREMENT=181 DEFAULT CHARSET=utf8;
+
 
 
 
 10）
         
 二、Java 代码实现      功能代码实现
+
     https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/entity/RpaStockPositionList.java
     https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/entity/RpaStockTradeList.java
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/mapper/RpaStockPositionMapper.java
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/mapper/RpaStockTradeMapper.java
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/IRpaRocketMQService.java
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/IRpaStockPositionService.java
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/IRpaStockTradeService.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/mapper/RpaStockPositionMapper.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/mapper/RpaStockTradeMapper.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/IRpaRocketMQService.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/IRpaStockPositionService.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/IRpaStockTradeService.java
        
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/impl/RpaRocketMQBackServiceImpl.java
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/impl/RpaRocketMQServiceImpl.java
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/impl/RpaStockPositionServiceImpl.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/impl/RpaRocketMQBackServiceImpl.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/impl/RpaRocketMQServiceImpl.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/impl/RpaStockPositionServiceImpl.java
        
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/impl/RpaStockTradeServiceImpl.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/java/cc/mrbird/febs/api/service/impl/RpaStockTradeServiceImpl.java
        
        
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/resources/mapper/api/RpaStockPositionMapper.xml
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/resources/mapper/api/RpaStockTradeMapper.xml
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/resources/mapper/api/RpaStockPositionMapper.xml
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/resources/mapper/api/RpaStockTradeMapper.xml
        
-       相关配置文件 
+    相关配置文件 
        
-       https://github.com/pubeisola/stock/blob/master/rpa-server/pom.xml
-       配置文件
-       https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/resources/application-dev.yml
+   https://github.com/pubeisola/stock/blob/master/rpa-server/pom.xml
+   配置文件
+   https://github.com/pubeisola/stock/blob/master/rpa-server/src/main/resources/application-dev.yml
        
-       测试环境  要安装  mysql 5.7 数据库     安装数据库初始化 sql在
-       测试环境  要安装   RocketMQ 4.8.0 单机环境测试 作为接受交易记录的消息队列：
-               RocketMQ 4.8.0 win环境案例 安装案例:  https://www.cnblogs.com/coder-lzh/p/9006048.html
+   测试环境  要安装  mysql 5.7 数据库     安装数据库初始化 sql在
+   测试环境  要安装   RocketMQ 4.8.0 单机环境测试 作为接受交易记录的消息队列：
+   RocketMQ 4.8.0 win环境案例 安装案例:  https://www.cnblogs.com/coder-lzh/p/9006048.html
                
 三、测试代码实现     本功能的测试代码实现代码
-https://github.com/pubeisola/stock/blob/master/rpa-server/src/test/java/cc/mrbird/febs/StockServiceTests.java
-https://github.com/pubeisola/stock/blob/master/rpa-server/src/test/java/cc/mrbird/febs/SpringDemoApplicationTests.java
-测试结果写入  目录：   maven 编译本项目后的   项目目录的  /target/surefire-reports/cc.mrbird.febs.StockServiceTests.txt    
-cc.mrbird.febs.SpringDemoApplicationTests.txt  文件以及连带的 xml 文件
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/test/java/cc/mrbird/febs/StockServiceTests.java
+    https://github.com/pubeisola/stock/blob/master/rpa-server/src/test/java/cc/mrbird/febs/SpringDemoApplicationTests.java
+    测试结果写入  目录：   maven 编译本项目后的   项目目录的  /target/surefire-reports/cc.mrbird.febs.StockServiceTests.txt    
+                                                       cc.mrbird.febs.SpringDemoApplicationTests.txt  文件以及连带的 xml 文件
 
 
 
