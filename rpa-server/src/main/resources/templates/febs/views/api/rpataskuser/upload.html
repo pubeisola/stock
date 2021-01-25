@@ -1,0 +1,140 @@
+<style>
+    #user-add {
+        padding: 20px 25px 25px 0;
+    }
+    #user-add .layui-treeSelect .ztree li a, .ztree li span {
+        margin: 0 0 2px 3px !important;
+    }
+    #user-add #data-permission-tree-block {
+        border: 1px solid #eee;
+        border-radius: 2px;
+        padding: 3px 0;
+    }
+</style>
+<div class="layui-fluid" id="plugin-add">
+    <form class="layui-form" action="" lay-filter="plugin-add-form">
+
+        <div class="layui-upload">
+            <button type="button" class="layui-btn layui-btn-normal" id="uploadList">选择多工程文件</button>
+            <div class="layui-upload-list">
+                <table class="layui-table">
+                    <thead>
+                    <tr><th>文件名</th>
+                        <th>大小</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr></thead>
+                    <tbody id="uploaddemoList"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+        <div class="layui-form-item febs-hide">
+            <button type="button" class="layui-btn" id="uploadListAction">开始上传</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use(['febs', 'form', 'formSelects', 'validate', 'treeSelect', 'eleTree', 'util', 'upload'], function () {
+        var $     = layui.$,
+            febs  = layui.febs,
+            layer = layui.layer,
+            formSelects = layui.formSelects,
+            treeSelect  = layui.treeSelect,
+            form     = layui.form,
+            eleTree  = layui.eleTree,
+            $view    = $('#plugin-add'),
+            validate = layui.validate;
+        var upload = layui.upload;       // 上传插件
+        var util = layui.util;
+
+        //多文件列表示例 开始
+        var demoListView = $('#uploaddemoList')
+          ,uploadListIns = upload.render({
+            elem: '#uploadList'
+            ,url: 'rpataskuser/upload' //改成您自己的上传接口
+            ,accept: 'file'
+            ,multiple: true
+            ,auto: false
+            ,exts: 'zip' // 只允许上传压缩文件  客户端工程文件只能是zip 文件
+            ,bindAction: '#uploadListAction'
+            ,choose: function(obj){
+              var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+              //读取本地文件
+              obj.preview(function(index, file, result){
+                var tr = $(['<tr id="upload-'+ index +'">'
+                  ,'<td>'+ file.name +'</td>'
+                  ,'<td>'+ (file.size/1024).toFixed(1) +'kb</td>'
+                  ,'<td>等待上传</td>'
+                  ,'<td>'
+                    ,'<button class="layui-btn layui-btn-xs demo-reload-upload layui-hide">重传</button>'
+                    ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete-upload">删除</button>'
+                  ,'</td>'
+                ,'</tr>'].join(''));
+
+                //单个重传
+                tr.find('.demo-reload-upload').on('click', function(){
+                  obj.upload(index, file);
+                });
+
+                //删除
+                tr.find('.demo-delete-upload').on('click', function(){
+                  delete files[index]; //删除对应的文件
+                  tr.remove();
+                  uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                });
+
+                demoListView.append(tr);
+              });
+            }
+            ,done: function(res, index, upload){
+              if(res.files.file){ //上传成功
+                var tr = demoListView.find('tr#upload-'+ index)
+                ,tds = tr.children();
+                tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                tds.eq(3).html(''); //清空操作
+                return delete this.files[index]; //删除文件队列已经上传成功的文件
+              }
+              this.error(index, upload);
+            }
+            ,error: function(index, upload){
+              var tr = demoListView.find('tr#upload-'+ index)
+              ,tds = tr.children();
+              tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+              tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+            }
+          });
+          //多文件列表示例 结束
+
+
+
+
+
+        form.verify(validate);
+        form.render();
+        formSelects.render();
+
+        form.on('submit(plugin-add-form-submit)', function (data) {
+            console.log(data);
+
+            data.field['pluginId'] = data.field['plugin_id'];
+            data.field['pluginName'] = data.field['plugin_name'];
+            data.field['pluginDescription'] = data.field['plugin_description'];
+            data.field['attachmentMd5'] = data.field['attachment_md5'];
+
+            if ($.trim(data.field['updatedAt'])) {
+                data.field['updatedat'] = util.toDateString(data.field['updatedAt'], "yyyy-MM-dd HH:mm:ss");
+            }
+
+            febs.post(ctx + 'rpaPluginConfig/add', data.field, function () {
+                layer.closeAll();
+                febs.alert.success('新增插件成功！');
+                $('#febs-plugin').find('#query').click();
+            });
+            return false;
+        });
+    });
+</script>

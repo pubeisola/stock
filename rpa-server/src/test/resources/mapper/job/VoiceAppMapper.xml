@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.job.mapper.VoiceAppMapper">
+  <resultMap id="BaseResultMap" type="cc.mrbird.febs.job.entity.VoiceApp">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="app_file_name" jdbcType="VARCHAR" property="appFileName" />
+    <result column="app_file_path" jdbcType="VARCHAR" property="appFilePath" />
+    <result column="app_upload_time" jdbcType="TIMESTAMP" property="appUploadTime" />
+    <result column="app_scenes" jdbcType="VARCHAR" property="appScenes" />
+    <result column="app_scenes_result" jdbcType="VARCHAR" property="appScenesResult" />
+    <result column="app_rule" jdbcType="VARCHAR" property="appRule" />
+    <result column="app_rule_result" jdbcType="INTEGER" property="appRuleResult" />
+    <result column="app_scenes_time" jdbcType="INTEGER" property="appScenesTime" />
+    <result column="app_status" jdbcType="INTEGER" property="appStatus" />
+    <result column="startTime" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="endTime" jdbcType="TIMESTAMP" property="endTime" />
+  </resultMap>
+  <resultMap  id="voiceRules" type="cc.mrbird.febs.job.entity.VoiceRules">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="rule_name" jdbcType="VARCHAR" property="ruleName" />
+    <result column="rule_desc" jdbcType="VARCHAR" property="ruleDesc" />
+    <result column="rule_score" jdbcType="INTEGER" property="ruleScore" />
+    <result column="rule_roles" jdbcType="VARCHAR" property="ruleRoles" />
+    <result column="rule_position" jdbcType="VARCHAR" property="rulePosition" />
+    <result column="rule_distance" jdbcType="INTEGER" property="ruleDistance" />
+    <result column="rule_appear" jdbcType="VARCHAR" property="ruleAppear" />
+    <result column="rule_value" jdbcType="VARCHAR" property="ruleValue" />
+  </resultMap >
+  <resultMap id="VoiceProject" type="cc.mrbird.febs.job.entity.VoiceProject">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project" jdbcType="VARCHAR" property="project" />
+    <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+    <result column="project_desc" jdbcType="VARCHAR" property="projectDesc" />
+  </resultMap>
+  <resultMap id="VoiceScenes" type="cc.mrbird.febs.job.entity.VoiceScenes">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project" jdbcType="VARCHAR" property="project" />
+    <result column="scenes_name" jdbcType="VARCHAR" property="scenesName" />
+    <result column="scenes_desc" jdbcType="VARCHAR" property="scenesDesc" />
+    <result column="scenes_status" jdbcType="VARCHAR" property="scenesStatus" />
+    <result column="rule_id" jdbcType="VARCHAR" property="ruleId" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, project_id, app_file_name,app_file_path, app_upload_time, app_scenes,app_rule,app_scenes_result, app_scenes_result, app_scenes_time,app_rule_result
+  </sql>
+
+  <select id="selectByTerm" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+    ANY_VALUE(a.id) as appid,a.project_id,b.project_name,app_file_path,app_file_name,app_upload_time,app_scenes,c.scenes_name,sum(app_scenes_time) as app_scenes_time,sum(app_rule_result) as app_rule_result
+    from voice_qulity.voice_qulity.voice_app a left join voice_qulity.voice_project b on a.project_id = b.id left join voice_qulity.voice_scenes c on a.app_scenes = c.id
+    where 1=1
+    <if test="project_id != null" >
+      and a.project_id  = #{project_id,jdbcType=INTEGER}
+    </if>
+    <if test="id != null" >
+      and id  = #{id,jdbcType=INTEGER}
+    </if>
+    <if test="startTime != null" >
+      and #{startTime,jdbcType=TIMESTAMP} <![CDATA[<=]]> date_format(app_upload_time ,'%Y-%m-%d')
+    </if>
+    <if test="endTime != null" >
+      and #{endTime,jdbcType=TIMESTAMP} <![CDATA[>=]]> date_format(app_upload_time,'%Y-%m-%d')
+    </if>
+    group by a.project_id,app_file_name,app_file_path,app_upload_time,app_scenes
+    order by app_upload_time desc
+  </select>
+
+  <select id="selectJobApp" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+    a.id,
+    a.app_file_path,
+    a.app_rule,
+    s.rule_score,
+    s.rule_status,
+    r.rule_position,
+    r.rule_distance,
+    r.rule_appear,
+    r.rule_value
+    from voice_qulity.voice_app a
+    left join voice_qulity.voice_rules r
+    on a.app_rule = r.id
+    LEFT JOIN voice_qulity.scenes_rules s
+    on a.app_rule = s.rule_id
+    AND a.app_scenes = s.scenes_id
+    where a.app_status=0 and s.status = 0
+  </select>
+
+  <select id="SelectFilePathById" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+     select app_file_path from voice_qulity.voice_app where id = #{id,jdbcType=INTEGER}
+  </select>
+
+
+
+
+  <select id="selectJobAppByOrderId" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+    select
+    a.id,
+    a.project_id,
+    a.app_upload_time,
+    a.app_scenes,
+    a.app_scenes_result,
+    a.app_rule,
+    a.app_rule_result,
+    a.app_status,
+    a.app_scenes_time,
+    a.app_process_status,
+    s.scenes_name as scene_name,
+    r.rule_name as rule_name,
+    sr.rule_status as rule_status,
+    sr.rule_score as rule_score
+    from voice_qulity.voice_app   a
+    join voice_qulity.scenes_rules sr on sr.scenes_id=a.app_scenes and sr.rule_id=a.app_rule
+    left join voice_qulity.voice_scenes s on s.id=a.app_scenes
+    left join voice_qulity.voice_rules r on r.id=a.app_rule
+
+    where order_id = #{id,jdbcType=INTEGER}
+  </select>
+
+
+
+
+
+  <select id="SelectFileDetailById" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+    select a.app_file_path,app_rule,app_rule_result,c.rule_name from
+    (select app_file_path from voice_qulity.voice_app where id = #{id,jdbcType=INTEGER}) a
+    join
+    (select app_file_path,app_rule,app_rule_result from voice_qulity.voice_app) b
+    on a.app_file_path =b.app_file_path
+    left JOIN
+    (select id,rule_name from voice_qulity.voice_rules)c
+    on b.app_rule = c.id
+  </select>
+
+  <insert id="insert" parameterType="cc.mrbird.febs.job.entity.VoiceApp">
+    insert into voice_qulity.voice_app (id, project_id, app_file_name, app_file_path,
+      app_upload_time, app_rule,app_scenes, app_scenes_result,app_status,
+      app_scenes_time)
+    values (#{id,jdbcType=INTEGER}, #{project_id,jdbcType=INTEGER}, #{appFileName,jdbcType=VARCHAR}, #{appFilePath,jdbcType=VARCHAR},
+    <choose>
+      <when test="appUploadTime != null">
+        #{appUploadTime}
+      </when>
+      <otherwise>
+        now()
+      </otherwise>
+    </choose>,#{appRule,jdbcType=VARCHAR}, #{appScenes,jdbcType=VARCHAR}, #{appScenesResult,jdbcType=VARCHAR},#{appStatus,jdbcType=INTEGER},
+      #{appScenesTime,jdbcType=INTEGER})
+  </insert>
+
+  <update id="updateById" parameterType="cc.mrbird.febs.job.entity.VoiceApp">
+    update voice_qulity.voice_app
+    <set>
+      <if test="project_id != null">
+        project_id = #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="appFileName != null">
+        app_file_name = #{appFileName,jdbcType=VARCHAR},
+      </if>
+      <if test="appUploadTime != null">
+        app_upload_time = #{appUploadTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="appScenes != null">
+        app_scenes = #{appScenes,jdbcType=VARCHAR},
+      </if>
+      <if test="appRuleResult != null">
+        app_rule_result = #{appRuleResult,jdbcType=VARCHAR},
+      </if>
+      <if test="appScenesResult != null">
+        app_scenes_result = #{appScenesResult,jdbcType=VARCHAR},
+      </if>
+      <if test="appScenesTime != null">
+        app_scenes_time = #{appScenesTime,jdbcType=INTEGER},
+      </if>
+      <if test="appStatus != null">
+        app_status = #{appStatus,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

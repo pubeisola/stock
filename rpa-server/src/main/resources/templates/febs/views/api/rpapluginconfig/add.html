@@ -1,0 +1,126 @@
+<style>
+    #user-add {
+        padding: 20px 25px 25px 0;
+    }
+    #user-add .layui-treeSelect .ztree li a, .ztree li span {
+        margin: 0 0 2px 3px !important;
+    }
+    #user-add #data-permission-tree-block {
+        border: 1px solid #eee;
+        border-radius: 2px;
+        padding: 3px 0;
+    }
+</style>
+<div class="layui-fluid" id="plugin-add">
+    <form class="layui-form" action="" lay-filter="plugin-add-form">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">插件id：</label>
+            <div class="layui-input-block">
+                <input type="text" name="plugin_id" minlength="4" maxlength="100"
+                       lay-verify="range|pluginId" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">插件名称：</label>
+            <div class="layui-input-block">
+                <input type="text" name="plugin_name" lay-verify="range|plugin_name"   minlength="4" maxlength="100" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">语言：</label>
+            <div class="layui-input-block">
+                <input type="text" name="language"  lay-verify="range|language"  minlength="4" maxlength="100"   autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">插件描述：</label>
+            <div class="layui-input-block">
+                <input type="text" name="plugin_description"  lay-verify="range|plugin_description"  minlength="4" maxlength="100"  autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">插件描述：</label>
+            <div class="layui-input-block">
+                <input type="text" name="attachment_md5"  lay-verify="range|attachment_md5"  minlength="4" maxlength="100"  autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">作者：</label>
+            <div class="layui-input-block">
+                <input type="text" name="author"  lay-verify="range|author"  minlength="1" maxlength="20"   autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">版本：</label>
+            <div class="layui-input-block">
+                <input type="text" name="version"  lay-verify="range|version"  minlength="1" maxlength="20"   autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">插件更新日期：</label>
+            <div class="layui-input-block">
+                <input type="text" name="updatedAt"  lay-verify="range|updatedAt"  minlength="1" maxlength="30"   autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+
+
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="plugin-add-form-submit" id="submit"></button>
+            <button type="reset" class="layui-btn" id="reset"></button>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use(['febs', 'form', 'formSelects', 'validate', 'treeSelect', 'eleTree', 'util'], function () {
+        var $     = layui.$,
+            febs  = layui.febs,
+            layer = layui.layer,
+            formSelects = layui.formSelects,
+            treeSelect  = layui.treeSelect,
+            form     = layui.form,
+            eleTree  = layui.eleTree,
+            $view    = $('#plugin-add'),
+            validate = layui.validate;
+
+        var util = layui.util;
+
+        form.verify(validate);
+        form.render();
+        formSelects.render();
+
+        form.on('submit(plugin-add-form-submit)', function (data) {
+            console.log(data);
+
+            data.field['pluginId'] = data.field['plugin_id'];
+            data.field['pluginName'] = data.field['plugin_name'];
+            data.field['pluginDescription'] = data.field['plugin_description'];
+            data.field['attachmentMd5'] = data.field['attachment_md5'];
+
+            if ($.trim(data.field['updatedAt'])) {
+                data.field['updatedat'] = util.toDateString(data.field['updatedAt'], "yyyy-MM-dd HH:mm:ss");
+            }
+
+            febs.post(ctx + 'rpaPluginConfig/add', data.field, function () {
+                layer.closeAll();
+                febs.alert.success('新增插件成功！');
+                $('#febs-plugin').find('#query').click();
+            });
+            return false;
+        });
+    });
+</script>

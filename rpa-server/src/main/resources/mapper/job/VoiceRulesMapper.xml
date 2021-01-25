@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.job.mapper.VoiceRulesMapper">
+  <resultMap id="BaseResultMap" type="cc.mrbird.febs.job.entity.VoiceRules">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="rule_name" jdbcType="VARCHAR" property="ruleName" />
+    <result column="rule_desc" jdbcType="VARCHAR" property="ruleDesc" />
+    <result column="rule_status" jdbcType="VARCHAR" property="ruleStatus" />
+    <result column="rule_score" jdbcType="INTEGER" property="ruleScore" />
+    <result column="rule_roles" jdbcType="VARCHAR" property="ruleRoles" />
+    <result column="rule_position" jdbcType="VARCHAR" property="rulePosition" />
+    <result column="rule_distance" jdbcType="INTEGER" property="ruleDistance" />
+    <result column="rule_appear" jdbcType="VARCHAR" property="ruleAppear" />
+    <result column="rule_value" jdbcType="VARCHAR" property="ruleValue" />
+  </resultMap>
+  <resultMap id="VoiceProject" type="cc.mrbird.febs.job.entity.VoiceProject">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project" jdbcType="VARCHAR" property="project" />
+    <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+    <result column="project_desc" jdbcType="VARCHAR" property="projectDesc" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, project_id, rule_name, rule_desc,rule_status, rule_score, rule_roles, rule_position, rule_distance,
+    rule_appear, rule_value
+  </sql>
+
+  <select id="selectByProjectRule" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+    a.id, project_id,b.project_name, rule_name, rule_desc,rule_status, rule_score, rule_roles, rule_position, rule_distance,
+    rule_appear, rule_value
+    from voice_qulity.voice_rules a left join voice_project b on a.project_id = b.id
+    where 1=1
+    <if test="project_id != null" >
+      and project_id  = #{project_id,jdbcType=INTEGER}
+    </if>
+    <if test="ruleName != null" >
+      and rule_name  like concat('%', #{ruleName,jdbcType=INTEGER},'%')
+    </if>
+    order by id desc
+  </select>
+
+
+  <select id="SelectScenesRule" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+    id,project_id,rule_name,rule_desc,rule_status,rule_score from voice_qulity.voice_rules
+    where 1=1
+    <if test="ruleName != null" >
+      rule_name  like concat('%', #{ruleName,jdbcType=INTEGER},'%')
+    </if>
+  </select>
+
+
+  <select id="rule_score" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    id, project_id, rule_name, rule_desc, rule_score,rule_value
+    from voice_qulity.voice_rules
+  </select>
+
+
+  <delete id="deleteById" parameterType="java.lang.Integer">
+    delete from voice_qulity.voice_rules
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cc.mrbird.febs.job.entity.VoiceRules">
+    insert into voice_qulity.voice_rules (id, project_id, rule_name,
+      rule_desc, rule_score, rule_roles,
+      rule_position, rule_distance, rule_appear,
+      rule_value)
+    values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, #{ruleName,jdbcType=VARCHAR},
+      #{ruleDesc,jdbcType=VARCHAR}, #{ruleScore,jdbcType=INTEGER}, #{ruleRoles,jdbcType=VARCHAR},
+      #{rulePosition,jdbcType=VARCHAR}, #{ruleDistance,jdbcType=INTEGER}, #{ruleAppear,jdbcType=VARCHAR},
+      #{ruleValue,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="cc.mrbird.febs.job.entity.VoiceRules">
+    insert into voice_qulity.voice_rules
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="project_id != null">
+        project_id,
+      </if>
+      <if test="ruleName != null">
+        rule_name,
+      </if>
+      <if test="ruleDesc != null">
+        rule_desc,
+      </if>
+      <if test="ruleStatus != null">
+        rule_status,
+      </if>
+      <if test="ruleScore != null">
+        rule_score,
+      </if>
+      <if test="ruleRoles != null">
+        rule_roles,
+      </if>
+      <if test="rulePosition != null">
+        rule_position,
+      </if>
+      <if test="ruleDistance != null">
+        rule_distance,
+      </if>
+      <if test="ruleAppear != null">
+        rule_appear,
+      </if>
+      <if test="ruleValue != null">
+        rule_value,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="project_id != null">
+        #{project_id,jdbcType=INTEGER},
+      </if>
+      <if test="ruleName != null">
+        #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null">
+        #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleStatus != null">
+        #{ruleStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleScore != null">
+        #{ruleScore,jdbcType=INTEGER},
+      </if>
+      <if test="ruleRoles != null">
+        #{ruleRoles,jdbcType=VARCHAR},
+      </if>
+      <if test="rulePosition != null">
+        #{rulePosition,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDistance != null">
+        #{ruleDistance,jdbcType=INTEGER},
+      </if>
+      <if test="ruleAppear != null">
+        #{ruleAppear,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleValue != null">
+        #{ruleValue,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cc.mrbird.febs.job.entity.VoiceRules">
+    update voice_qulity.voice_rules
+    <set>
+      <if test="project_id != null">
+        project_id = #{project_id,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleName != null">
+        rule_name = #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null">
+        rule_desc = #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleScore != null">
+        rule_score = #{ruleScore,jdbcType=INTEGER},
+      </if>
+      <if test="ruleRoles != null">
+        rule_roles = #{ruleRoles,jdbcType=VARCHAR},
+      </if>
+      <if test="rulePosition != null">
+        rule_position = #{rulePosition,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDistance != null">
+        rule_distance = #{ruleDistance,jdbcType=INTEGER},
+      </if>
+      <if test="ruleAppear != null">
+        rule_appear = #{ruleAppear,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleValue != null">
+        rule_value = #{ruleValue,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cc.mrbird.febs.job.entity.VoiceRules">
+    update voice_qulity.voice_rules
+    set project_id = #{project_id,jdbcType=VARCHAR},
+      rule_name = #{ruleName,jdbcType=VARCHAR},
+      rule_desc = #{ruleDesc,jdbcType=VARCHAR},
+      rule_score = #{ruleScore,jdbcType=INTEGER},
+      rule_roles = #{ruleRoles,jdbcType=VARCHAR},
+      rule_position = #{rulePosition,jdbcType=VARCHAR},
+      rule_distance = #{ruleDistance,jdbcType=INTEGER},
+      rule_appear = #{ruleAppear,jdbcType=VARCHAR},
+      rule_value = #{ruleValue,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

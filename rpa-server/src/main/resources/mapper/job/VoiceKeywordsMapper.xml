@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.job.mapper.VoiceKeywordsMapper">
+  <resultMap id="BaseResultMap" type="cc.mrbird.febs.job.entity.VoiceKeywords">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="key_names" jdbcType="VARCHAR" property="keyNames" />
+    <result column="key_values" jdbcType="VARCHAR" property="keyValues" />
+    <result column="utime" jdbcType="TIMESTAMP" property="utime" />
+  </resultMap>
+  <resultMap id="VoiceProject" type="cc.mrbird.febs.job.entity.VoiceProject">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project" jdbcType="VARCHAR" property="project" />
+    <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+    <result column="project_desc" jdbcType="VARCHAR" property="projectDesc" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, project_id, key_names, key_values, utime
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from voice_qulity.voice_keywords
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByProjectKeyword" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+    a.id,project_id,b.project_name, key_names,key_values ,utime
+    from voice_qulity.voice_keywords a left join voice_project b on a.project_id = b.id
+    where 1=1
+    <if test="project_id != null" >
+      and project_id  = #{project_id,jdbcType=INTEGER}
+    </if>
+    <if test="keyNames != null" >
+      and key_names  like concat('%', #{keyNames,jdbcType=INTEGER},'%')
+    </if>
+    order by utime desc
+  </select>
+
+  <select id="selectAllNameValues" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+    project_id,key_names,key_values
+    from voice_qulity.voice_keywords order by key_names desc
+  </select>
+
+
+  <delete id="deleteById" parameterType="java.lang.Integer">
+    delete from voice_qulity.voice_keywords
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cc.mrbird.febs.job.entity.VoiceKeywords">
+    insert into voice_qulity.voice_keywords (id, project_id, key_names,
+      key_values, utime)
+    values (#{id,jdbcType=INTEGER}, #{project_id,jdbcType=INTEGER}, #{keyNames,jdbcType=VARCHAR},
+      #{keyValues,jdbcType=VARCHAR}, #{utime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="cc.mrbird.febs.job.entity.VoiceKeywords">
+    insert into voice_qulity.voice_keywords
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="project_id != null">
+        project_id,
+      </if>
+      <if test="keyNames != null">
+        key_names,
+      </if>
+      <if test="keyValues != null">
+        key_values,
+      </if>
+        utime,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="project_id != null">
+        #{project_id,jdbcType=INTEGER},
+      </if>
+      <if test="keyNames != null">
+        #{keyNames,jdbcType=VARCHAR},
+      </if>
+      <if test="keyValues != null">
+        #{keyValues,jdbcType=VARCHAR},
+      </if>
+      <if test="utime != null">
+        #{utime,jdbcType=TIMESTAMP},
+      </if>
+      <choose>
+        <when test="utime != null">
+          #{utime,jdbcType=TIMESTAMP},
+        </when>
+        <otherwise>
+          now()
+        </otherwise>
+      </choose>
+    </trim>
+  </insert>
+  <update id="updateByid" parameterType="cc.mrbird.febs.job.entity.VoiceKeywords">
+    update voice_qulity.voice_keywords
+    <set>
+      <if test="project_id != null">
+        project_id = #{project_id,jdbcType=INTEGER},
+      </if>
+      <if test="keyNames != null">
+        key_names = #{keyNames,jdbcType=VARCHAR},
+      </if>
+      <if test="keyValues != null">
+        key_values = #{keyValues,jdbcType=VARCHAR},
+      </if>
+      <!--<if test="utime != null">-->
+        <!--utime = #{utime,jdbcType=TIMESTAMP},-->
+      <!--</if>-->
+      <choose>
+        <when test="utime != null">
+          utime = #{utime,jdbcType=TIMESTAMP},
+        </when>
+        <otherwise>
+          utime = now()
+        </otherwise>
+      </choose>
+
+
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cc.mrbird.febs.job.entity.VoiceKeywords">
+    update voice_qulity.voice_keywords
+    set project_id = #{project_id,jdbcType=INTEGER},
+      key_names = #{keyNames,jdbcType=VARCHAR},
+      key_values = #{keyValues,jdbcType=VARCHAR},
+      utime = #{utime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

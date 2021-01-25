@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.api.mapper.RpaStockTradeMapper">
+    <select id="findById" resultType="RpaStockTradeList">
+        SELECT
+        c.transaction_id as transactionId
+        FROM
+        rpa.stock_transaction_log  c
+
+        WHERE  1=1
+
+        <if test="tradeSerId!=null and tradeSerId!=''">
+            and trade_ser_id=#{tradeSerId}
+        </if>
+
+    </select>
+
+    <select id="findTradeLast" resultType="RpaStockTradeList">
+        SELECT
+        c.action as action,
+        c.buy_or_sell as buyOrSell,
+        c.security_code as securityCode,
+        c.trade_id as tradeId,
+        c.transaction_id as transactionId,
+        c.version as version,
+        c.quantity as quantity,
+        c.trade_ser_id as tradeSerId,
+        c.create_time as createTime
+        FROM
+        rpa.stock_transaction_log  c
+
+        WHERE  1=1
+
+        <if test="tradeId!=null and tradeId!=''">
+            and trade_id=#{tradeId}
+        </if>
+        order by version desc limit 1
+    </select>
+
+    <insert id="insert" parameterType="RpaStockTradeList">
+        INSERT INTO rpa.stock_transaction_log(trade_ser_id,trade_id,version,security_code,quantity,action,buy_or_sell,create_time)
+        VALUES(#{tradeSerId,jdbcType=VARCHAR}, #{tradeId,jdbcType=INTEGER}, #{version,jdbcType=INTEGER}, #{securityCode,jdbcType=VARCHAR}, #{quantity,jdbcType=INTEGER}, #{action,jdbcType=VARCHAR}, #{buyOrSell,jdbcType=VARCHAR}, #{createTime,jdbcType=INTEGER})
+
+    </insert>
+
+    <delete id="delAll">
+
+        DELETE FROM stock_transaction_log WHERE 1=1
+
+    </delete>
+</mapper>

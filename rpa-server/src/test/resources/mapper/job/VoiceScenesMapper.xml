@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.job.mapper.VoiceScenesMapper">
+  <resultMap id="BaseResultMap" type="cc.mrbird.febs.job.entity.VoiceScenes">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="scenes_name" jdbcType="VARCHAR" property="scenesName" />
+    <result column="scenes_desc" jdbcType="VARCHAR" property="scenesDesc" />
+    <result column="scenes_status" jdbcType="INTEGER" property="scenesStatus" />
+  </resultMap>
+  <resultMap id="VoiceProject" type="cc.mrbird.febs.job.entity.VoiceProject">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="project" jdbcType="VARCHAR" property="project" />
+    <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+    <result column="project_desc" jdbcType="VARCHAR" property="projectDesc" />
+  </resultMap>
+  <resultMap id="ScenesRules" type="cc.mrbird.febs.job.entity.ScenesRules">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="scenes_id" jdbcType="INTEGER" property="scenesid" />
+    <result column="rule_id" jdbcType="INTEGER" property="ruleid" />
+    <result column="rule_status" jdbcType="VARCHAR" property="ruleStatus" />
+    <result column="rule_score" jdbcType="INTEGER" property="ruleScore" />
+    <result column="status" jdbcType="INTEGER" property="Status" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, project_id, scenes_name, scenes_desc, scenes_status, rule_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from voice_qulity.voice_scenes
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectRuleById" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+    select
+    a.id,scenes_name,rule_id
+    from voice_qulity.voice_scenes a left join voice_qulity.scenes_rules b on a.id = b.scenes_id
+    where a.id = #{id,jdbcType=INTEGER} and b.status = 0
+  </select>
+
+  <select id="selectRuleByScenesId" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+    select
+    a.id,scenes_id,rule_id,b.rule_name,a.rule_status,a.rule_score,b.rule_desc
+    from voice_qulity.scenes_rules a left join voice_rules b on a.rule_id = b.id
+    where a.scenes_id = #{scenes_id,jdbcType=INTEGER} and a.status =0
+  </select>
+
+
+  <!--,rule_status,rule_score,rule_id-->
+  <select id="selectByScenes" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+    a.id, a.project_id,b.project_name, scenes_name, scenes_desc, scenes_status
+    from voice_qulity.voice_scenes a left join voice_qulity.voice_project b on a.project_id = b.id
+    where 1=1
+    <if test="project_id != null" >
+      and project_id  = #{project_id,jdbcType=INTEGER}
+    </if>
+    <if test="scenesName != null" >
+      and scenes_name  like concat('%', #{scenesName,jdbcType=INTEGER},'%')
+    </if>
+    order by id desc
+  </select>
+
+  <delete id="deleteById" parameterType="java.lang.Integer">
+    delete from voice_qulity.voice_scenes
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <delete id="deleteByScenesid" parameterType="java.lang.Integer">
+    delete from voice_qulity.scenes_rules
+    where scenes_id = #{scenes_id,jdbcType=INTEGER}
+  </delete>
+
+  <insert id="insertScenesRules" parameterType="cc.mrbird.febs.job.entity.ScenesRules">
+    insert into voice_qulity.scenes_rules
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="scenesid != null">
+        scenes_id,
+      </if>
+      <if test="ruleid != null">
+        rule_id,
+      </if>
+      <if test="ruleStatus != null">
+        rule_status,
+      </if>
+      <if test="ruleScore != null">
+      rule_score,
+    </if>
+      <if test="Status != null">
+        status,
+    </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="scenesid != null">
+        #{scenesid,jdbcType=INTEGER},
+      </if>
+      <if test="ruleid != null">
+        #{ruleid,jdbcType=INTEGER},
+      </if>
+      <if test="ruleStatus != null">
+        #{ruleStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleScore != null">
+        #{ruleScore,jdbcType=INTEGER},
+      </if>
+      <if test="Status != null">
+        #{Status,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+  <insert id="insert" parameterType="cc.mrbird.febs.job.entity.VoiceScenes">
+    insert into voice_qulity.voice_scenes (id, project_id, scenes_name,
+      scenes_desc, scenes_status, rule_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{project_id,jdbcType=INTEGER}, #{scenesName,jdbcType=VARCHAR},
+      #{scenesDesc,jdbcType=VARCHAR}, #{scenesStatus,jdbcType=VARCHAR}, #{ruleId,jdbcType=INTEGER}
+      )
+  </insert>
+
+  <insert id="insertSelective" parameterType="cc.mrbird.febs.job.entity.VoiceScenes" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+  <!--<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">-->
+    insert into voice_qulity.voice_scenes
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="project_id != null">
+        project_id,
+      </if>
+      <if test="scenesName != null">
+        scenes_name,
+      </if>
+      <if test="scenesDesc != null">
+        scenes_desc,
+      </if>
+      <if test="scenesStatus != null">
+        scenes_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="project_id != null">
+        #{project_id,jdbcType=INTEGER},
+      </if>
+      <if test="scenesName != null">
+        #{scenesName,jdbcType=VARCHAR},
+      </if>
+      <if test="scenesDesc != null">
+        #{scenesDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="scenesStatus != null">
+        #{scenesStatus,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  <!--</selectKey>-->
+  </insert>
+
+
+  <update id="updateScenesRulesStatus" parameterType="cc.mrbird.febs.job.entity.ScenesRules">
+    update voice_qulity.scenes_rules
+    <set>
+        status = 1
+    </set>
+    where scenes_id = #{scenes_id,jdbcType=INTEGER}
+  </update>
+
+  <update id="UpdateScenesStatus" parameterType="cc.mrbird.febs.job.entity.ScenesRules">
+    update voice_qulity.voice_scenes
+    <set>
+      <if test="scenesStatus != null">
+        scenes_status = #{scenesStatus,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="cc.mrbird.febs.job.entity.VoiceScenes">
+    update voice_qulity.voice_scenes
+    <set>
+      <if test="project_id != null">
+        project_id = #{project_id,jdbcType=INTEGER},
+      </if>
+      <if test="scenesName != null">
+        scenes_name = #{scenesName,jdbcType=VARCHAR},
+      </if>
+      <if test="scenesDesc != null">
+        scenes_desc = #{scenesDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="scenesStatus != null">
+        scenes_status = #{scenesStatus,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cc.mrbird.febs.job.entity.VoiceScenes">
+    update voice_qulity.voice_scenes
+    set project_id = #{project_id,jdbcType=INTEGER},
+      scenes_name = #{scenesName,jdbcType=VARCHAR},
+      scenes_desc = #{scenesDesc,jdbcType=VARCHAR},
+      scenes_status = #{scenesStatus,jdbcType=INTEGER},
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

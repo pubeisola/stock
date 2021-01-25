@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.job.mapper.VoiceOrderMapper">
+
+  <insert id="insert" parameterType="cc.mrbird.febs.job.entity.VoiceOrder">
+    insert into voice_qulity.voice_quality_order (app_id, name, project_id,
+    scene_id, call_back_url,rl, se_path,ctime)
+    values (#{appId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{projectId,jdbcType=INTEGER},
+    #{sceneId,jdbcType=VARCHAR}, #{callBackUrl,jdbcType=VARCHAR}, #{rl,jdbcType=INTEGER}, #{sePath,jdbcType=VARCHAR},
+    #{ctime,jdbcType=VARCHAR})
+
+    <selectKey resultType="Integer" order="AFTER" keyProperty="id">
+      SELECT LAST_INSERT_ID() AS id
+    </selectKey>
+  </insert>
+
+  <insert id="addRuleBatch">
+    INSERT INTO voice_order_scene(order_id,scenes_id,ctime)
+    VALUES
+    <foreach collection="emps" item="emp" separator=",">
+      (#{emp.orderId, jdbcType=INTEGER},#{emp.sceneId, jdbcType=INTEGER},#{emp.ctime, jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+
+  <select id="selectOrder" resultType="java.util.HashMap">
+    select
+    *
+    from voice_qulity.voice_quality_order a
+    where a.ser = #{ser,jdbcType=VARCHAR} and a.status = 1
+  </select>
+
+  <update id="updateSerSend" parameterType="cc.mrbird.febs.job.entity.VoiceOrder">
+    update voice_qulity.voice_quality_order
+    <set>
+      <if test="serSend != null">
+        ser_send = #{serSend,jdbcType=VARCHAR},
+        job_id = #{jobId,jdbcType=INTEGER}
+      </if>
+    </set>
+    where ser_send_status = 0 and (job_id = 0  or job_id = #{jobId,jdbcType=INTEGER})
+    limit 100;
+  </update>
+
+  <update id="updateSerSendStatus" parameterType="cc.mrbird.febs.job.entity.VoiceOrder">
+    update voice_qulity.voice_quality_order
+    <set>
+      ser_send_status = 1
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+    limit 1;
+  </update>
+
+  <select id="selectSerSend" parameterType="cc.mrbird.febs.job.entity.VoiceOrder"  resultType="java.util.HashMap">
+    select
+    id,ser_send,job_id,uuid,call_back_url
+    from voice_qulity.voice_quality_order a
+    where job_id = #{jobId,jdbcType=INTEGER} and a.ser_send = #{serSend,jdbcType=VARCHAR} and ser_send_status = 0
+  </select>
+
+</mapper>

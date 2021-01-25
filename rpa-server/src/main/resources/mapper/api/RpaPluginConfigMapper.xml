@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.api.mapper.RpaPluginConfigMapper">
+    <select id="findById" parameterType="string" resultType="RpaPluginConfig">
+        SELECT
+        c.id as id,
+        c.plugin_id as pluginId,
+        c.plugin_description as pluginDescription,
+        c.language as language,
+        c.attachment_md5 as attachmentMd5,
+        c.author as author,
+        c.plugin_name as pluginName,
+        c.version as version,
+        c.createAt as createat,
+        c.updatedAt as updatedat,
+        c.plugin_state as pluginState,
+        c.user_id as userId,
+        c.company_id as companyId,
+        c.user_id2 as userId2,
+        c.plation_id as plationId
+
+        FROM
+        rpa.rpa_plugin_config c
+
+        WHERE  c.id = #{id}
+    </select>
+
+    <select id="getPluginTotal" resultType="int">
+        SELECT
+        IFFULL(count(1), 0) as mycount
+
+        FROM
+        rpa.rpa_plugin_config c
+
+        WHERE  1=1
+
+        <if test="keyword !=null and keyword !=''">
+            and ( plugin_id like '%#{keyword}%'  or plugin_description  like '%#{keyword}%')
+        </if >
+
+    </select>
+
+
+    <select id="findByPage"  resultType="RpaPluginView">
+        SELECT
+        c.language as language,
+        c.plugin_id as plugin_id,
+        c.plugin_name as pluginName,
+        c.author as author,
+        c.version as version,
+        c.plugin_description as plugin_description,
+        c.attachment_md5 as attachment_md5,
+        c.updatedAt as updatedAt
+
+        FROM
+        rpa.rpa_plugin_config c
+
+        WHERE  1=1
+
+        <if test="keyword !=null and keyword !=''">
+            and ( plugin_id like '%#{keyword}%'  or plugin_description  like '%#{keyword}%')
+        </if >
+
+        order by id asc
+        limit #{offset}, 6
+    </select>
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.api.mapper.RpaStockPositionMapper">
+    <select id="findByPage" resultType="RpaStockPositionList">
+        SELECT
+        c.id as id,
+        c.security_code as securityCode,
+        c.quantity as quantity,
+        c.update_time as update_time
+        FROM
+        rpa.stock_position  c
+
+        WHERE  1=1
+
+        <if test="offset!=null and offset!=''  and pageSizeInt!=null  and pageSizeInt>=0">
+            limit #{offset},#{pageSizeInt}
+        </if >
+
+    </select>
+
+    <select id="findAll" resultType="RpaStockPositionList">
+        SELECT
+        c.security_code as securityCode,
+        sum(c.quantity) as quantity
+        FROM
+        rpa.stock_position c
+
+        WHERE  1=1
+        group by c.security_code
+        order by c.security_code desc
+
+    </select>
+
+    <delete id="delAll">
+
+        DELETE FROM stock_position WHERE 1=1
+
+    </delete>
+
+    <insert id="update" parameterType="RpaStockPositionList">
+        INSERT INTO stock_position(trade_id,security_code,quantity,update_time,version)
+        VALUE(#{tradeId,jdbcType=INTEGER},#{securityCode,jdbcType=VARCHAR}, #{quantity,jdbcType=INTEGER}, #{updateTime,jdbcType=INTEGER}, #{version,jdbcType=INTEGER})
+        ON DUPLICATE KEY UPDATE security_code=#{securityCode,jdbcType=VARCHAR}, quantity= #{quantity,jdbcType=INTEGER},update_time=#{updateTime,jdbcType=INTEGER},version=#{version,jdbcType=INTEGER}
+
+    </insert>
+
+    <insert id="insertOrUpdate" parameterType="RpaStockPositionList">
+        INSERT INTO stock_position(trade_id,security_code,quantity,update_time,version)
+        VALUE(#{tradeId,jdbcType=INTEGER},#{securityCode,jdbcType=VARCHAR}, #{quantity,jdbcType=INTEGER}, #{updateTime,jdbcType=INTEGER}, #{version,jdbcType=INTEGER})
+        ON DUPLICATE KEY UPDATE security_code=#{securityCode,jdbcType=VARCHAR}, quantity=quantity + #{quantity,jdbcType=INTEGER},update_time=#{updateTime,jdbcType=INTEGER},version=#{version,jdbcType=INTEGER}
+
+    </insert>
+</mapper>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.api.mapper.RpaTaskListMapper">
+    <select id="findByPage" resultType="RpaTaskList">
+        SELECT
+        c.id as id,
+        c.user_id as userId,
+        c.company_id as companyId,
+        c.user_id2 as userId2,
+        c.plation_id as plationId,
+        c.createAt as createAt,
+        c.updatedAt as updatedAt,
+        c.userId as userId,
+        c.temporary1 as temporary1,
+        c.status as status,
+        c.ruleId as ruleId,
+        c.project_type as projectType,
+        c.project_name as projectName,
+        c.project_code as projectCode,
+        c.message as message,
+        c.loginName as loginName,
+        c.deviceIdName as deviceIdName,
+        c.deletedAt as deletedAt,
+        r.cron_rule as cronRule
+        String offset, int pageSizeInt, String keyword, String  startTime, String endTime, String status
+        FROM
+        rpa.rpa_task_list c
+        join rpa.rpa_task_cron_rule r on r.id=c.ruleId
+
+        WHERE  1=1
+        <if test="keyword!=null and keyword!=''">
+            and project_name like concat('',#{keyword},'%')
+        </if >
+        <if test="status !=null and status !=''">
+            and status=#{status}
+        </if >
+
+        <if test="startTime !=null and startTime !=''">
+            and status<![CDATA[ >= ]]>#{startTime}
+        </if >
+
+        <if test="endTime !=null and endTime !=''">
+            and status<![CDATA[ <= ]]>#{endTime}
+        </if >
+
+        <if test="offset!=null and offset!=''  and pageSizeInt!=null  and pageSizeInt>=0">
+            limit #{offset},#{pageSizeInt}
+        </if >
+
+    </select>
+
+
+    <select id="selectExcelList" parameterType="string" resultType="RpaTaskListExcel">
+        SELECT
+        c.id as id,
+        c.user_id as userId,
+        c.company_id as companyId,
+        c.user_id2 as userId2,
+        c.plation_id as plationId,
+        c.createAt as createAt,
+        c.updatedAt as updatedAt,
+        c.userId as userId,
+        c.temporary1 as temporary1,
+        c.status as status,
+        c.ruleId as ruleId,
+        c.project_type as projectType,
+        c.project_name as projectName,
+        c.project_code as projectCode,
+        c.message as message,
+        c.loginName as loginName,
+        c.deviceIdName as deviceIdName,
+        c.deletedAt as deletedAt,
+        r.cron_rule as cronRule
+
+        FROM
+        rpa.rpa_task_list c
+        join rpa.rpa_task_cron_rule r on r.id=c.ruleId
+
+        WHERE  1=1
+        <if test="name!=null and name!=''">
+            and project_name like concat('',#{name},'%')
+        </if >
+        <if test="status !=null and status !=''">
+            and status=#{status}
+        </if >
+
+        <if test="startTime !=null and startTime !=''">
+            and status<![CDATA[ >= ]]>#{startTime}
+        </if >
+
+        <if test="endTime !=null and endTime !=''">
+            and status<![CDATA[ <= ]]>#{endTime}
+        </if >
+
+    </select>
+
+    <select id="findById" parameterType="string" resultType="RpaTaskListExcel">
+        SELECT
+        c.id as id,
+        c.user_id as userId,
+        c.company_id as companyId,
+        c.user_id2 as userId2,
+        c.plation_id as plationId,
+        c.createAt as createAt,
+        c.updatedAt as updatedAt,
+        c.userId as userId,
+        c.temporary1 as temporary1,
+        c.status as status,
+        c.ruleId as ruleId,
+        c.project_type as projectType,
+        c.project_name as projectName,
+        c.project_code as projectCode,
+        c.message as message,
+        c.loginName as loginName,
+        c.deviceIdName as deviceIdName,
+        c.deletedAt as deletedAt,
+        r.cron_rule as cronRule
+
+        FROM
+        rpa.rpa_task_list c
+        join rpa.rpa_task_cron_rule r on r.id=c.ruleId
+
+        WHERE  c.id = #{id}
+    </select>
+</mapper>
